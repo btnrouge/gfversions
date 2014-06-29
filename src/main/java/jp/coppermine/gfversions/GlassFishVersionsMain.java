@@ -3,6 +3,7 @@ package jp.coppermine.gfversions;
 import static java.nio.file.FileVisitResult.CONTINUE;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
@@ -15,13 +16,14 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.fxml.FXMLLoader;
 
 /**
  * Main class of this application.
  */
-public class Main extends Application {
+public class GlassFishVersionsMain extends Application {
 	
 	/**
 	 * Path to directory of the work copy.
@@ -47,19 +49,7 @@ public class Main extends Application {
 	 */
 	@Override
 	public void stop() throws Exception {
-		FileVisitor<Path> visitor = new SimpleFileVisitor<Path>() {
-			@Override
-			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-				Files.delete(file);
-				return CONTINUE;
-			}
-			@Override
-			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-				Files.delete(dir);
-				return CONTINUE;
-			}
-		};
-		Files.walkFileTree(workCopy, visitor);
+		cleanup();
 	}
 
 	/**
@@ -75,10 +65,34 @@ public class Main extends Application {
 			scene.getStylesheets().add(getClass().getResource("/style/application.css").toExternalForm());
 			stage.setScene(scene);
 			stage.setTitle("GlassFish components version viewer");
+			stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/gfversions.png")));
 			stage.show();
 		} catch(Exception e) {
 			e.printStackTrace();
 			Platform.exit();
+		}
+	}
+	
+	/**
+	 * Cleanup temporary files created by this application.
+	 */
+	public static void cleanup() {
+		FileVisitor<Path> visitor = new SimpleFileVisitor<Path>() {
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+				Files.delete(file);
+				return CONTINUE;
+			}
+			@Override
+			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+				Files.delete(dir);
+				return CONTINUE;
+			}
+		};
+		try {
+			Files.walkFileTree(workCopy, visitor);
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
 		}
 	}
 	

@@ -4,8 +4,15 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="480.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jp.coppermine.gfversions.GlassFishVersionsController">
-<children><ChoiceBox fx:id="target" layoutX="14.0" layoutY="14.0" prefWidth="550.0" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0" xmlns:fx="http://javafx.com/fxml" /><Button fx:id="load" layoutX="571.427734375" layoutY="14.0" mnemonicParsing="false" onAction="#onLoadAction" prefWidth="50.0" text="Load" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0" /><Accordion layoutX="14.0" layoutY="51.0" prefHeight="69.0" prefWidth="613.0" AnchorPane.bottomAnchor="28.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="56.0" xmlns:fx="http://javafx.com/fxml">
+<AnchorPane minHeight="480.0" minWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jp.coppermine.gfversions.GlassFishVersionsController">
+<children>
+      <HBox prefHeight="100.0" prefWidth="200.0" spacing="5.0" AnchorPane.leftAnchor="8.0" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="8.0">
+         <children>
+            <ChoiceBox fx:id="target" prefWidth="420.0" />
+            <TextField fx:id="revision" alignment="CENTER_RIGHT" prefWidth="100.0" promptText="HEAD" />
+            <Button fx:id="load" mnemonicParsing="false" onAction="#onLoadAction" prefWidth="90.0" text="Load" />
+         </children>
+      </HBox><Accordion layoutX="14.0" layoutY="80.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="80.0" xmlns:fx="http://javafx.com/fxml">
   <panes>
     <TitledPane fx:id="appserverPane" animated="false" text="appserver">
       <content>

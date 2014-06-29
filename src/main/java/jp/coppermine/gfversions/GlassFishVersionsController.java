@@ -3,10 +3,12 @@ package jp.coppermine.gfversions;
 import static javafx.concurrent.WorkerStateEvent.WORKER_STATE_SUCCEEDED;
 import static org.tmatesoft.svn.core.SVNDepth.FILES;
 import static org.tmatesoft.svn.core.wc.SVNRevision.HEAD;
+import static org.tmatesoft.svn.core.wc.SVNRevision.UNDEFINED;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
@@ -24,11 +26,13 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
+import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNUpdateClient;
 
 /**
@@ -41,6 +45,12 @@ public class GlassFishVersionsController implements Initializable {
 	 */
 	@FXML
 	private ChoiceBox<Repository> target;
+	
+	/**
+	 * Text field for keep to the revision.
+	 */
+	@FXML
+	private TextField revision;
 	
 	/**
 	 * Button pushed when checkout from the repository.
@@ -119,8 +129,9 @@ public class GlassFishVersionsController implements Initializable {
 	 */
 	@FXML
 	public void onLoadAction(ActionEvent event) {
-		Repository repository = target.getSelectionModel().getSelectedItem();
-		if (repository != null) {
+		GlassFishVersionsMain.cleanup();
+		
+		Optional.ofNullable(target.getSelectionModel().getSelectedItem()).ifPresent(repository -> {
 			ExecutorService executor = Executors.newCachedThreadPool();
 			Task<Void> task = new Task<Void>() {
 				@Override
@@ -131,18 +142,20 @@ public class GlassFishVersionsController implements Initializable {
 					updateClient.setIgnoreExternals(false);
 					updateProgress(0.1, 1.0);
 					
-					updateClient.doCheckout(url.appendPath("appserver", true), Main.workCopy.resolve("appserver").toFile(), HEAD, HEAD, FILES, false);
+					SVNRevision svnRevision = revision.getText().isEmpty() ? HEAD : SVNRevision.parse(revision.getText());
+					
+					updateClient.doCheckout(url.appendPath("appserver", true), GlassFishVersionsMain.workCopy.resolve("appserver").toFile(), UNDEFINED, svnRevision, FILES, false);
 					updateProgress(0.4, 1.0);
 					
-					updateClient.doCheckout(url.appendPath("nucleus", true), Main.workCopy.resolve("nucleus").toFile(), HEAD, HEAD, FILES, false);
+					updateClient.doCheckout(url.appendPath("nucleus", true), GlassFishVersionsMain.workCopy.resolve("nucleus").toFile(), UNDEFINED, svnRevision, FILES, false);
 					updateProgress(0.7, 1.0);
 					
-					GlassFishPomParser pomParser = GlassFishPomParser.getParser();
+					PomParser pomParser = PomParser.getParser();
 					
-					appserverEntries = FXCollections.observableList(pomParser.parse(Main.workCopy.resolve("appserver").resolve("pom.xml")));
+					appserverEntries = FXCollections.observableList(pomParser.parse(GlassFishVersionsMain.workCopy.resolve("appserver").resolve("pom.xml")));
 					updateProgress(0.8, 1.0);
 					
-					nucleusEntries = FXCollections.observableList(pomParser.parse(Main.workCopy.resolve("nucleus").resolve("pom.xml")));
+					nucleusEntries = FXCollections.observableList(pomParser.parse(GlassFishVersionsMain.workCopy.resolve("nucleus").resolve("pom.xml")));
 					updateProgress(0.9, 1.0);
 
 					appserverTable.setItems(appserverEntries);
@@ -161,7 +174,7 @@ public class GlassFishVersionsController implements Initializable {
 			task.addEventFilter(WORKER_STATE_SUCCEEDED, (t) -> executor.shutdown());
 			progress.progressProperty().bind(task.progressProperty());
 			executor.submit(task);
-		}
+		});
 	}
 
 	/* (non Javadoc)

@@ -1,13 +1,16 @@
 package jp.coppermine.gfversions;
 
 import static java.nio.file.StandardOpenOption.READ;
+import static java.util.stream.Collectors.toList;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -19,12 +22,12 @@ import javax.xml.stream.events.XMLEvent;
 /**
  * Parser for pom.xml of appserver or nucleus.
  */
-public class GlassFishPomParser {
+public class PomParser {
 	
-	private GlassFishPomParser() { }
+	private PomParser() { }
 	
-	public static GlassFishPomParser getParser() {
-		return new GlassFishPomParser();
+	public static PomParser getParser() {
+		return new PomParser();
 	}
 	
 	/**
@@ -70,6 +73,6 @@ public class GlassFishPomParser {
 			reader.close();
 		}
 		
-		return versions;
+		return versions.stream().sorted((e1, e2) -> e1.getComponent().compareTo(e2.getComponent())).collect(toList());
 	}
 }
