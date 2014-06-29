@@ -64,7 +64,7 @@ public class GlassFishVersionsMain extends Application {
 			Scene scene = new Scene(root);
 			scene.getStylesheets().add(getClass().getResource("/style/application.css").toExternalForm());
 			stage.setScene(scene);
-			stage.setTitle("GlassFish components version viewer");
+			stage.setTitle("GlassFish components");
 			stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/gfversions.png")));
 			stage.show();
 		} catch(Exception e) {
