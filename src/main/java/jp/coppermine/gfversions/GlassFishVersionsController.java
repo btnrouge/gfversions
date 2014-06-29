@@ -187,11 +187,7 @@ public class GlassFishVersionsController implements Initializable {
 		try (InputStream stream = getClass().getResourceAsStream("/repository.properties")) {
 			Properties properties = new Properties();
 			properties.load(stream);
-			
-			for (String key : properties.stringPropertyNames()) {
-				repositories.add(new Repository(key, properties.getProperty(key)));
-			}
-			
+			properties.forEach((k, v) -> repositories.add(new Repository(k.toString(), v.toString())));
 		} catch (IOException e) {
 			e.printStackTrace();
 			Platform.exit();
